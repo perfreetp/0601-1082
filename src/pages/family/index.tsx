@@ -3,18 +3,21 @@ import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
-import TagChip from '@/components/TagChip';
 import {
   mockFamilyMembers,
   mockMessages,
-  mockSurveys,
   mockHealthSummary,
 } from '@/data/family';
+import { useAppStore } from '@/store';
+import type { HealthReport } from '@/store';
 
 const FamilyPage: React.FC = () => {
   const [members] = useState(mockFamilyMembers);
   const [messages] = useState(mockMessages);
-  const [surveys] = useState(mockSurveys);
+  const surveys = useAppStore((s) => s.surveys);
+  const completeSurvey = useAppStore((s) => s.completeSurvey);
+  const addHealthReport = useAppStore((s) => s.addHealthReport);
+  const glucoseRecords = useAppStore((s) => s.glucoseRecords);
   const summary = mockHealthSummary;
 
   const handleEmergency = () => {
@@ -36,28 +39,44 @@ const FamilyPage: React.FC = () => {
   };
 
   const handleExport = () => {
-    Taro.showActionSheet({
-      itemList: ['导出为 PDF 报告', '导出为 Excel 表格', '分享给医生'],
-      success: (res) => {
-        Taro.showToast({ title: '正在生成报告...', icon: 'loading' });
-        console.log('[Family] 导出数据', res.tapIndex);
-        setTimeout(() => {
-          Taro.showToast({ title: '导出成功', icon: 'success' });
-        }, 1500);
-      },
-      fail: (err) => {
-        console.error('[Family] 导出操作失败', err);
-      },
-    });
+    const avgGlucose = glucoseRecords.length > 0
+      ? Math.round((glucoseRecords.reduce((sum, r) => sum + r.value, 0) / glucoseRecords.length) * 10) / 10
+      : 6.7;
+    const highCount = glucoseRecords.filter(r => r.status === 'high' || r.status === 'danger').length;
+    const lowCount = glucoseRecords.filter(r => r.status === 'low').length;
+
+    let overallStatus = '控制良好';
+    if (highCount > 3) overallStatus = '需加强管理';
+    else if (highCount > 1 || lowCount > 1) overallStatus = '基本达标，仍有改善空间';
+
+    const report: HealthReport = {
+      id: Date.now().toString(),
+      generatedAt: new Date().toLocaleString('zh-CN'),
+      period: '近7天',
+      avgGlucose,
+      highCount,
+      lowCount,
+      avgWeight: 67.5,
+      exerciseCount: 5,
+      medicineCompliance: 95,
+      summary: `近7天平均血糖 ${avgGlucose} mmol/L，${overallStatus}。偏高 ${highCount} 次，偏低 ${lowCount} 次。用药依从率 95%，运动 5 次。建议继续保持规律作息和饮食控制，注意餐后血糖波动。`,
+    };
+
+    addHealthReport(report);
+    Taro.navigateTo({ url: `/pages/report/index?reportId=${report.id}` });
+    console.log('[Family] 生成健康报告', report);
   };
 
-  const handleSurveyClick = (survey: typeof mockSurveys[0]) => {
-    if (survey.status === 'pending') {
-      Taro.showToast({ title: `开始填写${survey.title}`, icon: 'none' });
-    } else {
-      Taro.showToast({ title: '查看问卷结果', icon: 'none' });
+  const handleSurveyClick = (surveyId: string, status: string) => {
+    if (status === 'completed') {
+      Taro.showToast({ title: '该问卷已完成', icon: 'none' });
+      return;
     }
-    console.log('[Family] 点击问卷', survey);
+    if (status === 'expired') {
+      Taro.showToast({ title: '该问卷已过期', icon: 'none' });
+      return;
+    }
+    Taro.navigateTo({ url: `/pages/survey/index?surveyId=${surveyId}` });
   };
 
   const handleAddMember = () => {
@@ -219,7 +238,7 @@ const FamilyPage: React.FC = () => {
             <View
               key={survey.id}
               className={styles.surveyItem}
-              onClick={() => handleSurveyClick(survey)}
+              onClick={() => handleSurveyClick(survey.id, survey.status)}
             >
               <View className={styles.surveyInfo}>
                 <Text className={styles.surveyTitle}>{survey.title}</Text>

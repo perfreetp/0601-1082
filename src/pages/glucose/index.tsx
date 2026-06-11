@@ -1,24 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import TagChip from '@/components/TagChip';
-import { mockTodayGlucose, mockExercises, mockMedicines, glucoseTypes, getGlucoseStatus } from '@/data/glucoseRecords';
+import { mockExercises, mockMedicines, glucoseTypes, getGlucoseStatus } from '@/data/glucoseRecords';
+import { useAppStore } from '@/store';
 import type { GlucoseRecord, ExerciseRecord, MedicineRecord } from '@/types/glucose';
 
 const GlucosePage: React.FC = () => {
-  const [records, setRecords] = useState<GlucoseRecord[]>(mockTodayGlucose);
+  const glucoseRecords = useAppStore((s) => s.glucoseRecords);
+  const addGlucoseRecord = useAppStore((s) => s.addGlucoseRecord);
   const [exercises] = useState<ExerciseRecord[]>(mockExercises);
   const [medicines] = useState<MedicineRecord[]>(mockMedicines);
 
-  const latestRecord = records[records.length - 1];
-  const avgGlucose = records.length > 0
-    ? (records.reduce((sum, r) => sum + r.value, 0) / records.length).toFixed(1)
-    : '0';
+  const latestRecord = glucoseRecords.length > 0 ? glucoseRecords[glucoseRecords.length - 1] : null;
 
-  const highCount = records.filter(r => r.status === 'high' || r.status === 'danger').length;
-  const lowCount = records.filter(r => r.status === 'low').length;
+  const stats = useMemo(() => {
+    if (glucoseRecords.length === 0) {
+      return { avg: '0', high: 0, low: 0 };
+    }
+    const avg = (glucoseRecords.reduce((sum, r) => sum + r.value, 0) / glucoseRecords.length).toFixed(1);
+    const high = glucoseRecords.filter(r => r.status === 'high' || r.status === 'danger').length;
+    const low = glucoseRecords.filter(r => r.status === 'low').length;
+    return { avg, high, low };
+  }, [glucoseRecords]);
 
   const getStatusText = (status: string) => {
     const map: Record<string, string> = {
@@ -52,7 +58,7 @@ const GlucosePage: React.FC = () => {
                   typeLabel: selectedType.label,
                   status: getGlucoseStatus(value),
                 };
-                setRecords(prev => [...prev, newRecord]);
+                addGlucoseRecord(newRecord);
                 Taro.showToast({ title: '记录成功', icon: 'success' });
                 console.log('[Glucose] 新增血糖记录', newRecord);
               } else {
@@ -100,15 +106,15 @@ const GlucosePage: React.FC = () => {
 
         <View className={styles.overviewStats}>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{avgGlucose}</Text>
+            <Text className={styles.statValue}>{stats.avg}</Text>
             <Text className={styles.statLabel}>平均值</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{highCount}</Text>
+            <Text className={styles.statValue}>{stats.high}</Text>
             <Text className={styles.statLabel}>偏高次数</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{lowCount}</Text>
+            <Text className={styles.statValue}>{stats.low}</Text>
             <Text className={styles.statLabel}>偏低次数</Text>
           </View>
         </View>
@@ -120,11 +126,11 @@ const GlucosePage: React.FC = () => {
             <Text>📋</Text>
             今日记录
           </Text>
-          <Text className={styles.seeAll}>共 {records.length} 条</Text>
+          <Text className={styles.seeAll}>共 {glucoseRecords.length} 条</Text>
         </View>
 
         <View className={styles.timeline}>
-          {records.map((record) => (
+          {glucoseRecords.map((record) => (
             <View key={record.id} className={styles.recordItem}>
               <View className={classnames(styles.timeDot, styles[record.status])} />
               <View className={styles.recordContent}>

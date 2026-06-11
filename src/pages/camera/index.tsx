@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Image, Button } from '@tarojs/components';
+import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import FoodItemComponent from '@/components/FoodItem';
 import { mockRecognitionResult, mockFoodDatabase } from '@/data/foods';
+import { useAppStore } from '@/store';
 import type { FoodItem } from '@/types/food';
 
 const CameraPage: React.FC = () => {
@@ -11,6 +12,7 @@ const CameraPage: React.FC = () => {
   const [hasResult, setHasResult] = useState(false);
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [previewImage, setPreviewImage] = useState('');
+  const addFoodsToMeal = useAppStore((s) => s.addFoodsToMeal);
 
   const totalCarbs = foods.reduce((sum, f) => sum + f.carbs, 0);
   const totalCalories = foods.reduce((sum, f) => sum + f.calories, 0);
@@ -52,7 +54,6 @@ const CameraPage: React.FC = () => {
   const startRecognition = () => {
     setIsScanning(true);
     setHasResult(false);
-
     setTimeout(() => {
       setIsScanning(false);
       setFoods([...mockRecognitionResult.foods]);
@@ -93,17 +94,26 @@ const CameraPage: React.FC = () => {
   };
 
   const handleSave = () => {
-    Taro.showToast({
-      title: '已保存到餐盘',
-      icon: 'success',
-    });
-    console.log('[Camera] 保存到餐盘', { foods, totalCarbs, totalCalories });
+    const now = new Date();
+    const hour = now.getHours();
+    let mealType = 'lunch';
+    if (hour < 10) mealType = 'breakfast';
+    else if (hour < 14) mealType = 'lunch';
+    else if (hour < 20) mealType = 'dinner';
+    else mealType = 'snack';
+
+    const foodsWithNewIds = foods.map((f, i) => ({
+      ...f,
+      id: `${Date.now()}_${i}`,
+    }));
+
+    addFoodsToMeal(mealType, foodsWithNewIds);
+    Taro.showToast({ title: `已保存到${mealType === 'breakfast' ? '早餐' : mealType === 'lunch' ? '午餐' : mealType === 'dinner' ? '晚餐' : '加餐'}`, icon: 'success' });
+    console.log('[Camera] 保存到餐盘', { mealType, foods: foodsWithNewIds, totalCarbs, totalCalories });
   };
 
   const goToSuggestion = () => {
-    Taro.navigateTo({
-      url: '/pages/suggestion/index',
-    });
+    Taro.navigateTo({ url: '/pages/suggestion/index' });
   };
 
   return (
@@ -122,7 +132,6 @@ const CameraPage: React.FC = () => {
             <Text className={styles.placeholderText}>点击拍照识别食物</Text>
           </View>
         )}
-
         {isScanning && (
           <>
             <View className={styles.scanLine} />
@@ -170,7 +179,7 @@ const CameraPage: React.FC = () => {
           <View className={styles.foodList}>
             {foods.map((food, index) => (
               <FoodItemComponent
-                key={food.id}
+                key={food.id + index}
                 food={food}
                 showAdjust
                 onIncrease={() => handleIncrease(index)}

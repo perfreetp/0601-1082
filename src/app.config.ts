@@ -6,7 +6,9 @@ export default defineAppConfig({
     'pages/trends/index',
     'pages/family/index',
     'pages/suggestion/index',
-    'pages/plan/index'
+    'pages/plan/index',
+    'pages/survey/index',
+    'pages/report/index'
   ],
   window: {
     backgroundTextStyle: 'light',
