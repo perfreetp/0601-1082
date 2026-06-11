@@ -9,14 +9,13 @@ import {
   mockHealthSummary,
 } from '@/data/family';
 import { useAppStore } from '@/store';
-import type { HealthReport } from '@/store';
 
 const FamilyPage: React.FC = () => {
   const [members] = useState(mockFamilyMembers);
   const [messages] = useState(mockMessages);
   const surveys = useAppStore((s) => s.surveys);
-  const completeSurvey = useAppStore((s) => s.completeSurvey);
   const addHealthReport = useAppStore((s) => s.addHealthReport);
+  const healthReports = useAppStore((s) => s.healthReports);
   const glucoseRecords = useAppStore((s) => s.glucoseRecords);
   const summary = mockHealthSummary;
 
@@ -77,6 +76,10 @@ const FamilyPage: React.FC = () => {
       return;
     }
     Taro.navigateTo({ url: `/pages/survey/index?surveyId=${surveyId}` });
+  };
+
+  const handleViewReport = (reportId: string) => {
+    Taro.navigateTo({ url: `/pages/report/index?reportId=${reportId}` });
   };
 
   const handleAddMember = () => {
@@ -227,7 +230,45 @@ const FamilyPage: React.FC = () => {
       <View className={styles.section}>
         <View className={styles.sectionHeader}>
           <Text className={styles.sectionTitle}>
-            <Text>📋</Text>
+            <Text>�</Text>
+            健康报告记录
+          </Text>
+          <Text className={styles.seeAll}>共 {healthReports.length} 份</Text>
+        </View>
+
+        {healthReports.length === 0 ? (
+          <View className={styles.emptyCard}>
+            <Text className={styles.emptyIcon}>📄</Text>
+            <Text className={styles.emptyText}>暂无健康报告</Text>
+            <Text className={styles.emptyHint}>点击上方"数据导出"生成您的第一份健康摘要报告</Text>
+          </View>
+        ) : (
+          <View className={styles.reportList}>
+            {healthReports.map((report) => (
+              <View
+                key={report.id}
+                className={styles.reportItem}
+                onClick={() => handleViewReport(report.id)}
+              >
+                <View className={styles.reportItemIcon}>📊</View>
+                <View className={styles.reportItemInfo}>
+                  <Text className={styles.reportItemTitle}>健康摘要报告</Text>
+                  <View className={styles.reportItemMeta}>
+                    <Text>{report.generatedAt}</Text>
+                    <Text>平均血糖 {report.avgGlucose}</Text>
+                  </View>
+                </View>
+                <View className={styles.reportItemArrow}>›</View>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View className={styles.section}>
+        <View className={styles.sectionHeader}>
+          <Text className={styles.sectionTitle}>
+            <Text>��</Text>
             医生问卷
           </Text>
           <Text className={styles.seeAll}>全部</Text>

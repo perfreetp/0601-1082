@@ -108,8 +108,12 @@ const CameraPage: React.FC = () => {
     }));
 
     addFoodsToMeal(mealType, foodsWithNewIds);
-    Taro.showToast({ title: `已保存到${mealType === 'breakfast' ? '早餐' : mealType === 'lunch' ? '午餐' : mealType === 'dinner' ? '晚餐' : '加餐'}`, icon: 'success' });
+    const mealName = mealType === 'breakfast' ? '早餐' : mealType === 'lunch' ? '午餐' : mealType === 'dinner' ? '晚餐' : '加餐';
+    Taro.showToast({ title: `已保存到${mealName}`, icon: 'success' });
     console.log('[Camera] 保存到餐盘', { mealType, foods: foodsWithNewIds, totalCarbs, totalCalories });
+    setTimeout(() => {
+      Taro.switchTab({ url: '/pages/plate/index' });
+    }, 600);
   };
 
   const goToSuggestion = () => {

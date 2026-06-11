@@ -362,3 +362,90 @@
   font-size: 20rpx;
   color: $color-text-tertiary;
 }
+
+.emptyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.emptyIcon {
+  font-size: 72rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyHint {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.reportList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.reportItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.reportItemIcon {
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+}
+
+.reportItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.reportItemTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.reportItemMeta {
+  display: flex;
+  gap: $spacing-md;
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.reportItemArrow {
+  flex-shrink: 0;
+  font-size: $font-size-xl;
+  color: $color-text-tertiary;
+  line-height: 1;
+}

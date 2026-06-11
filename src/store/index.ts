@@ -179,6 +179,7 @@ export interface HealthReport {
 
 interface AppState {
   mealFoods: Record<string, FoodItem[]>;
+  currentMealType: string;
   glucoseRecords: GlucoseRecord[];
   shoppingItems: ShoppingItem[];
   weeklyMenu: WeeklyMenuDay[];
@@ -187,6 +188,7 @@ interface AppState {
   healthReports: HealthReport[];
 
   addFoodsToMeal: (mealType: string, foods: FoodItem[]) => void;
+  setCurrentMealType: (mealType: string) => void;
   setMealFoods: (mealType: string, foods: FoodItem[]) => void;
   addGlucoseRecord: (record: GlucoseRecord) => void;
   toggleShoppingItem: (id: string) => void;
@@ -197,6 +199,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   mealFoods: buildDefaultMealFoods(),
+  currentMealType: 'lunch',
   glucoseRecords: [...mockTodayGlucose],
   shoppingItems: [...mockShoppingList],
   weeklyMenu: buildDefaultWeeklyMenu(),
@@ -208,8 +211,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => {
       const existing = state.mealFoods[mealType] || [];
       const updated = { ...state.mealFoods, [mealType]: [...existing, ...foods] };
-      saveToStorage(STORE_KEY, { ...get(), mealFoods: updated });
-      return { mealFoods: updated };
+      saveToStorage(STORE_KEY, { ...get(), mealFoods: updated, currentMealType: mealType });
+      return { mealFoods: updated, currentMealType: mealType };
+    });
+  },
+
+  setCurrentMealType: (mealType) => {
+    set((state) => {
+      saveToStorage(STORE_KEY, { ...get(), currentMealType: mealType });
+      return { currentMealType: mealType };
     });
   },
 
@@ -273,6 +283,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (saved) {
         set({
           mealFoods: saved.mealFoods || buildDefaultMealFoods(),
+          currentMealType: saved.currentMealType || 'lunch',
           glucoseRecords: saved.glucoseRecords || [...mockTodayGlucose],
           shoppingItems: saved.shoppingItems || [...mockShoppingList],
           weeklyMenu: saved.weeklyMenu || buildDefaultWeeklyMenu(),

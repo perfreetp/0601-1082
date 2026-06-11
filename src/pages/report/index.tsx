@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
+import classnames from 'classnames';
 import { useAppStore } from '@/store';
 import type { HealthReport } from '@/store';
 
@@ -23,12 +24,33 @@ const ReportPage: React.FC = () => {
   }
 
   const handleShare = () => {
-    Taro.showToast({ title: '已复制分享链接', icon: 'success' });
-    console.log('[Report] 分享报告', report.id);
+    const shareText = `【健康摘要报告】\n生成时间：${report.generatedAt}\n统计周期：${report.period}\n\n🩸 血糖概览\n平均血糖：${report.avgGlucose} mmol/L\n偏高次数：${report.highCount} 次\n偏低次数：${report.lowCount} 次\n记录总条数：${glucoseRecords.length} 条\n\n📋 健康概况\n平均体重：${report.avgWeight} kg\n运动次数：${report.exerciseCount} 次\n用药依从率：${report.medicineCompliance}%\n\n🤖 AI 评估总结\n${report.summary}\n\n——由控糖助手生成`;
+    Taro.setClipboardData({
+      data: shareText,
+      success: () => {
+        Taro.showModal({
+          title: '分享内容已复制',
+          content: '健康摘要报告内容已复制到剪贴板，可直接粘贴发送给医生或亲友。',
+          showCancel: false,
+          confirmText: '好的',
+          confirmColor: '#10B981',
+        });
+      },
+      fail: () => {
+        Taro.showModal({
+          title: '健康报告分享',
+          content: shareText,
+          showCancel: false,
+          confirmText: '知道了',
+          confirmColor: '#10B981',
+        });
+      },
+    });
+    console.log('[Report] 分享报告', report.id, shareText);
   };
 
   const handleClose = () => {
-    Taro.navigateBack();
+    Taro.switchTab({ url: '/pages/family/index' });
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
@@ -9,9 +9,10 @@ import { useAppStore } from '@/store';
 import type { FoodItem } from '@/types/food';
 
 const PlatePage: React.FC = () => {
-  const [activeMeal, setActiveMeal] = useState('lunch');
   const mealFoods = useAppStore((s) => s.mealFoods);
   const setMealFoods = useAppStore((s) => s.setMealFoods);
+  const activeMeal = useAppStore((s) => s.currentMealType);
+  const setCurrentMealType = useAppStore((s) => s.setCurrentMealType);
 
   const currentFoods = mealFoods[activeMeal] || [];
 
@@ -80,7 +81,7 @@ const PlatePage: React.FC = () => {
           <View
             key={meal.key}
             className={classnames(styles.mealTab, activeMeal === meal.key && styles.active)}
-            onClick={() => setActiveMeal(meal.key)}
+            onClick={() => setCurrentMealType(meal.key)}
           >
             <Text>{meal.icon} {meal.label}</Text>
           </View>
