@@ -4,6 +4,111 @@
   min-height: 100vh;
   padding: 0 $page-padding;
   padding-bottom: 180rpx;
+  padding-top: $spacing-md;
+}
+
+.dateBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.dateNav {
+  flex-shrink: 0;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  background: $color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-card;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.dateNavArrow {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  line-height: 1;
+}
+
+.dateStrip {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.dateItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-xs $spacing-md;
+  margin-right: $spacing-xs;
+  border-radius: $radius-md;
+  background: $color-bg-card;
+  transition: all $transition-base;
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+
+    .dateLabel,
+    .dateSub {
+      color: $color-text-white;
+    }
+  }
+}
+
+.dateLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.dateSub {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.daySummaryCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 8rpx 24rpx rgba(16, 185, 129, 0.2);
+  color: $color-text-white;
+}
+
+.daySummaryTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.dayStats {
+  display: flex;
+  justify-content: space-around;
+}
+
+.dayStat {
+  text-align: center;
+}
+
+.dayStatValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.dayStatLabel {
+  font-size: 20rpx;
+  opacity: 0.9;
 }
 
 .mealTabs {
@@ -16,19 +121,42 @@
 .mealTab {
   @include button-reset;
   flex-shrink: 0;
-  padding: $spacing-sm $spacing-lg;
-  border-radius: $radius-button;
+  min-width: 140rpx;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-lg;
   background: $color-bg-card;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
   transition: all $transition-base;
+  box-shadow: $shadow-card;
 
   &.active {
     background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
-    color: $color-text-white;
     box-shadow: 0 4rpx 12rpx rgba(16, 185, 129, 0.3);
+
+    .mealTabIcon,
+    .mealTabLabel,
+    .mealTabCarbs {
+      color: $color-text-white;
+    }
   }
+}
+
+.mealTabIcon {
+  font-size: 36rpx;
+}
+
+.mealTabLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.mealTabCarbs {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
 }
 
 .nutritionCard {

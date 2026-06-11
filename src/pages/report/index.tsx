@@ -23,14 +23,63 @@ const ReportPage: React.FC = () => {
     );
   }
 
+  const abnormalList = report.abnormalGlucoseList || [];
+  const highCarbMeals = report.highCarbMeals || [];
+  const doctorAdvice = report.doctorAdvice || [];
+
   const handleShare = () => {
-    const shareText = `【健康摘要报告】\n生成时间：${report.generatedAt}\n统计周期：${report.period}\n\n🩸 血糖概览\n平均血糖：${report.avgGlucose} mmol/L\n偏高次数：${report.highCount} 次\n偏低次数：${report.lowCount} 次\n记录总条数：${glucoseRecords.length} 条\n\n📋 健康概况\n平均体重：${report.avgWeight} kg\n运动次数：${report.exerciseCount} 次\n用药依从率：${report.medicineCompliance}%\n\n🤖 AI 评估总结\n${report.summary}\n\n——由控糖助手生成`;
+    const abnormalText = abnormalList.length > 0
+      ? abnormalList.slice(0, 5).map(r =>
+        `  ${r.date} ${r.time} · ${r.type}：${r.value} mmol/L（${r.status === 'low' ? '偏低' : r.status === 'high' ? '偏高' : '过高'}）`
+      ).join('\n')
+      : '  无异常血糖记录';
+
+    const highCarbText = highCarbMeals.length > 0
+      ? highCarbMeals.map(m =>
+        `  ${m.date} ${m.mealLabel}：碳水 ${m.totalCarbs}g，${m.foodCount} 种食物`
+      ).join('\n')
+      : '  无高碳水餐次（>50g）';
+
+    const adviceText = doctorAdvice.length > 0
+      ? doctorAdvice.map((a, i) => `  ${i + 1}. ${a}`).join('\n')
+      : '  继续保持当前控糖方案';
+
+    const shareText = `【健康摘要报告】
+生成时间：${report.generatedAt}
+统计周期：${report.period}
+
+━━━ 🩸 血糖概览 ━━━
+平均血糖：${report.avgGlucose} mmol/L
+偏高次数：${report.highCount} 次
+偏低次数：${report.lowCount} 次
+记录总条数：${glucoseRecords.length} 条
+
+━━━ 📋 健康概况 ━━━
+平均体重：${report.avgWeight} kg
+运动次数：${report.exerciseCount} 次
+用药依从率：${report.medicineCompliance}%
+综合评级：${report.highCount === 0 ? '优秀' : report.highCount <= 2 ? '良好' : '需改善'}
+
+━━━ ⚠️ 异常血糖记录 ━━━
+${abnormalText}
+
+━━━ 🍚 高碳水餐次 ━━━
+${highCarbText}
+
+━━━ 👨‍⚕️ 医生建议 ━━━
+${adviceText}
+
+━━━ 📝 AI 评估总结 ━━━
+${report.summary}
+
+—— 由控糖助手生成，仅供参考，具体请遵医嘱`;
+
     Taro.setClipboardData({
       data: shareText,
       success: () => {
         Taro.showModal({
           title: '分享内容已复制',
-          content: '健康摘要报告内容已复制到剪贴板，可直接粘贴发送给医生或亲友。',
+          content: '完整的健康摘要报告内容已复制到剪贴板，包含血糖、饮食和医生建议，可直接粘贴发送给医生或亲友。',
           showCancel: false,
           confirmText: '好的',
           confirmColor: '#10B981',
@@ -128,45 +177,82 @@ const ReportPage: React.FC = () => {
           </View>
         </View>
 
+        {abnormalList.length > 0 && (
+          <View className={styles.section}>
+            <Text className={styles.sectionTitle}>
+              <Text>⚠️</Text>
+              异常血糖记录
+            </Text>
+            <View className={styles.abnormalList}>
+              {abnormalList.slice(0, 6).map((item, idx) => (
+                <View key={idx} className={styles.abnormalItem}>
+                  <View className={styles.abnormalLeft}>
+                    <Text className={styles.abnormalDate}>{item.date}</Text>
+                    <Text className={styles.abnormalTime}>{item.time}</Text>
+                  </View>
+                  <View className={styles.abnormalCenter}>
+                    <Text className={styles.abnormalType}>{item.type}</Text>
+                  </View>
+                  <View className={styles.abnormalRight}>
+                    <Text className={classnames(styles.abnormalValue, styles[item.status])}>
+                      {item.value}
+                    </Text>
+                    <Text className={styles.abnormalUnit}>mmol/L</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {highCarbMeals.length > 0 && (
+          <View className={styles.section}>
+            <Text className={styles.sectionTitle}>
+              <Text>🍚</Text>
+              高碳水餐次（&gt;50g）
+            </Text>
+            <View className={styles.highCarbList}>
+              {highCarbMeals.map((meal, idx) => (
+                <View key={idx} className={styles.highCarbItem}>
+                  <View className={styles.highCarbInfo}>
+                    <Text className={styles.highCarbTitle}>
+                      {meal.date} · {meal.mealLabel}
+                    </Text>
+                    <Text className={styles.highCarbMeta}>{meal.foodCount} 种食物</Text>
+                  </View>
+                  <View className={styles.highCarbValue}>
+                    <Text className={styles.highCarbNumber}>{meal.totalCarbs}</Text>
+                    <Text className={styles.highCarbUnit}>g 碳水</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {doctorAdvice.length > 0 && (
+          <View className={styles.section}>
+            <Text className={styles.sectionTitle}>
+              <Text>👨‍⚕️</Text>
+              医生建议
+            </Text>
+            <View className={styles.doctorAdviceList}>
+              {doctorAdvice.map((advice, idx) => (
+                <View key={idx} className={styles.adviceItem}>
+                  <View className={styles.adviceNum}>{idx + 1}</View>
+                  <Text className={styles.adviceText}>{advice}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>
             <Text>📝</Text>
             AI 评估总结
           </Text>
           <Text className={styles.summaryText}>{report.summary}</Text>
-        </View>
-
-        <View className={styles.section}>
-          <Text className={styles.sectionTitle}>
-            <Text>💡</Text>
-            改善建议
-          </Text>
-          <View className={styles.adviceList}>
-            <View className={styles.adviceItem}>
-              <Text className={styles.adviceIcon}>1️⃣</Text>
-              <Text className={styles.adviceText}>
-                继续保持规律饮食，注意碳水化合物的摄入量，优先选择低 GI 食物
-              </Text>
-            </View>
-            <View className={styles.adviceItem}>
-              <Text className={styles.adviceIcon}>2️⃣</Text>
-              <Text className={styles.adviceText}>
-                建议餐后 30-60 分钟进行轻度运动，如散步 15-20 分钟
-              </Text>
-            </View>
-            <View className={styles.adviceItem}>
-              <Text className={styles.adviceIcon}>3️⃣</Text>
-              <Text className={styles.adviceText}>
-                按时服药/注射胰岛素，避免漏服，如有不适及时就医
-              </Text>
-            </View>
-            <View className={styles.adviceItem}>
-              <Text className={styles.adviceIcon}>4️⃣</Text>
-              <Text className={styles.adviceText}>
-                保持良好睡眠习惯，建议每天 22:00 前入睡，睡眠 7-8 小时
-              </Text>
-            </View>
-          </View>
         </View>
       </View>
 

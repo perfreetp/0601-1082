@@ -4,12 +4,14 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useAppStore } from '@/store';
+import { mockFoodDatabase } from '@/data/foods';
 
 const PlanPage: React.FC = () => {
   const [activeDay, setActiveDay] = useState(0);
   const shoppingItems = useAppStore((s) => s.shoppingItems);
   const toggleShoppingItem = useAppStore((s) => s.toggleShoppingItem);
   const weeklyMenu = useAppStore((s) => s.weeklyMenu);
+  const replaceWeeklyMenuFood = useAppStore((s) => s.replaceWeeklyMenuFood);
 
   const weekDays = [
     { name: '周一', date: '15' },
@@ -23,12 +25,19 @@ const PlanPage: React.FC = () => {
 
   const dayMenu = weeklyMenu[activeDay] || weeklyMenu[0];
 
-  const mealBlocks = useMemo(() => [
-    { icon: '🌅', name: '早餐', items: dayMenu?.breakfast || [], calories: '约 350 千卡' },
-    { icon: '☀️', name: '午餐', items: dayMenu?.lunch || [], calories: '约 520 千卡' },
-    { icon: '🌙', name: '晚餐', items: dayMenu?.dinner || [], calories: '约 450 千卡' },
-    { icon: '🍎', name: '加餐', items: dayMenu?.snack || [], calories: '约 100 千卡' },
-  ], [dayMenu]);
+  const mealTypes = [
+    { key: 'breakfast', icon: '🌅', name: '早餐', calories: '约 350 千卡' },
+    { key: 'lunch', icon: '☀️', name: '午餐', calories: '约 520 千卡' },
+    { key: 'dinner', icon: '🌙', name: '晚餐', calories: '约 450 千卡' },
+    { key: 'snack', icon: '🍎', name: '加餐', calories: '约 100 千卡' },
+  ];
+
+  const mealBlocks = useMemo(() =>
+    mealTypes.map((mt) => ({
+      ...mt,
+      items: (dayMenu as any)?.[mt.key] || [],
+    })),
+    [dayMenu]);
 
   const reminders = [
     { date: '18', month: '1月', title: '血糖复查', desc: '空腹血糖 + 糖化血红蛋白', type: 'upcoming', tag: '本周' },
@@ -47,10 +56,40 @@ const PlanPage: React.FC = () => {
   const totalCount = shoppingItems.length;
   const categories = [...new Set(shoppingItems.map(item => item.category))];
 
+  const handleReplaceFood = (mealKey: string, foodIndex: number, currentName: string) => {
+    const currentMeal = (dayMenu as any)?.[mealKey] || [];
+    const currentNames = new Set(currentMeal.map((f: any) => f.name));
+
+    const alternatives = mockFoodDatabase.filter(
+      (f) => f.name !== currentName && !currentNames.has(f.name)
+    ).slice(0, 8);
+
+    const itemList = alternatives.map((f) => `${f.name}（${f.carbs}g碳水）`);
+
+    Taro.showActionSheet({
+      itemList: ['不替换', ...itemList],
+      success: (res) => {
+        if (res.tapIndex > 0) {
+          const selected = alternatives[res.tapIndex - 1];
+          replaceWeeklyMenuFood(activeDay, mealKey, foodIndex, {
+            name: selected.name,
+            image: selected.imageUrl,
+          });
+          Taro.showToast({ title: '已替换', icon: 'success' });
+          console.log('[Plan] 替换食物', activeDay, mealKey, foodIndex, selected.name);
+        }
+      },
+      fail: (err) => {
+        console.log('[Plan] 取消替换', err);
+      },
+    });
+  };
+
   return (
     <ScrollView scrollY className={styles.page}>
       <View className={styles.weekSelector}>
         <Text className={styles.weekTitle}>本周菜单</Text>
+        <Text className={styles.weekTip}>长按食物可替换</Text>
       </View>
 
       <ScrollView scrollX className={styles.dayTabs}>
@@ -82,10 +121,17 @@ const PlanPage: React.FC = () => {
               <Text className={styles.mealCalories}>{meal.calories}</Text>
             </View>
             <View className={styles.mealItems}>
-              {meal.items.map((item, iIndex) => (
-                <View key={iIndex} className={styles.mealItem}>
+              {meal.items.map((item: any, iIndex: number) => (
+                <View
+                  key={iIndex}
+                  className={styles.mealItem}
+                  onLongPress={() => handleReplaceFood(meal.key, iIndex, item.name)}
+                >
                   <Image className={styles.mealItemImg} src={item.image} mode="aspectFill" />
                   <Text className={styles.mealItemName}>{item.name}</Text>
+                  <View className={styles.replaceHint}>
+                    <Text className={styles.replaceIcon}>🔄</Text>
+                  </View>
                 </View>
               ))}
             </View>

@@ -9,6 +9,7 @@ import {
   mockHealthSummary,
 } from '@/data/family';
 import { useAppStore } from '@/store';
+import type { HealthReport } from '@/store';
 
 const FamilyPage: React.FC = () => {
   const [members] = useState(mockFamilyMembers);
@@ -17,6 +18,8 @@ const FamilyPage: React.FC = () => {
   const addHealthReport = useAppStore((s) => s.addHealthReport);
   const healthReports = useAppStore((s) => s.healthReports);
   const glucoseRecords = useAppStore((s) => s.glucoseRecords);
+  const mealRecords = useAppStore((s) => s.mealRecords);
+  const getMealCarbs = useAppStore((s) => s.getMealCarbs);
   const summary = mockHealthSummary;
 
   const handleEmergency = () => {
@@ -38,15 +41,79 @@ const FamilyPage: React.FC = () => {
   };
 
   const handleExport = () => {
-    const avgGlucose = glucoseRecords.length > 0
-      ? Math.round((glucoseRecords.reduce((sum, r) => sum + r.value, 0) / glucoseRecords.length) * 10) / 10
+    const today = new Date();
+    const dateList: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dateList.push(`${y}-${m}-${day}`);
+    }
+
+    const recentRecords = glucoseRecords.filter((r) => dateList.includes(r.date));
+    const avgGlucose = recentRecords.length > 0
+      ? Math.round((recentRecords.reduce((sum, r) => sum + r.value, 0) / recentRecords.length) * 10) / 10
       : 6.7;
-    const highCount = glucoseRecords.filter(r => r.status === 'high' || r.status === 'danger').length;
-    const lowCount = glucoseRecords.filter(r => r.status === 'low').length;
+    const highCount = recentRecords.filter(r => r.status === 'high' || r.status === 'danger').length;
+    const lowCount = recentRecords.filter(r => r.status === 'low').length;
+
+    const abnormalList = recentRecords
+      .filter(r => r.status === 'high' || r.status === 'danger' || r.status === 'low')
+      .sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time))
+      .slice(0, 10)
+      .map(r => ({
+        date: r.date,
+        time: r.time,
+        value: r.value,
+        type: r.typeLabel,
+        mealType: r.mealType,
+        status: r.status,
+      }));
+
+    const mealLabelMap: Record<string, string> = {
+      breakfast: '早餐',
+      lunch: '午餐',
+      dinner: '晚餐',
+      snack: '加餐',
+    };
+    const highCarbMeals: HealthReport['highCarbMeals'] = [];
+    dateList.forEach(date => {
+      const dayRecord = mealRecords[date];
+      if (!dayRecord) return;
+      Object.keys(dayRecord).forEach(mealKey => {
+        const foods = dayRecord[mealKey];
+        const carbs = foods.reduce((sum, f) => sum + f.carbs, 0);
+        if (carbs > 50) {
+          highCarbMeals.push({
+            date,
+            mealType: mealKey,
+            mealLabel: mealLabelMap[mealKey] || mealKey,
+            totalCarbs: Math.round(carbs * 10) / 10,
+            foodCount: foods.length,
+          });
+        }
+      });
+    });
+    highCarbMeals.sort((a, b) => b.totalCarbs - a.totalCarbs);
+    const topHighCarb = highCarbMeals.slice(0, 5);
 
     let overallStatus = '控制良好';
-    if (highCount > 3) overallStatus = '需加强管理';
-    else if (highCount > 1 || lowCount > 1) overallStatus = '基本达标，仍有改善空间';
+    if (highCount > 5) overallStatus = '需加强管理';
+    else if (highCount > 2 || lowCount > 2) overallStatus = '基本达标，仍有改善空间';
+
+    const doctorAdvice = [
+      '建议每日监测血糖至少4次（空腹、早午晚餐后2小时），如有低血糖症状及时补糖并记录。',
+      highCarbMeals.length > 0
+        ? `近期有 ${highCarbMeals.length} 餐碳水偏高（>50g），建议减少精制主食，增加膳食纤维摄入。`
+        : '碳水化合物摄入量控制较好，继续保持主食定量的习惯。',
+      '餐后30-60分钟建议进行轻度运动（如散步15-20分钟），有助于降低餐后血糖峰值。',
+      '保持规律作息，每晚睡眠时间建议7-8小时，熬夜会影响胰岛素敏感性。',
+      '按时按量服用降糖药物/胰岛素，不要自行调整剂量，如有疑问请咨询主治医生。',
+    ];
+
+    const summary = `近7天平均血糖 ${avgGlucose} mmol/L，${overallStatus}。偏高 ${highCount} 次，偏低 ${lowCount} 次。${topHighCarb.length > 0 ? `发现 ${topHighCarb.length} 餐碳水偏高，建议重点关注。` : '饮食控制总体较好。'} 用药依从率 95%，运动 5 次。建议继续保持规律作息，注意餐后血糖波动。`;
 
     const report: HealthReport = {
       id: Date.now().toString(),
@@ -58,7 +125,10 @@ const FamilyPage: React.FC = () => {
       avgWeight: 67.5,
       exerciseCount: 5,
       medicineCompliance: 95,
-      summary: `近7天平均血糖 ${avgGlucose} mmol/L，${overallStatus}。偏高 ${highCount} 次，偏低 ${lowCount} 次。用药依从率 95%，运动 5 次。建议继续保持规律作息和饮食控制，注意餐后血糖波动。`,
+      summary,
+      abnormalGlucoseList: abnormalList,
+      highCarbMeals: topHighCarb,
+      doctorAdvice,
     };
 
     addHealthReport(report);

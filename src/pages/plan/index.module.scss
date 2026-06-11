@@ -20,6 +20,14 @@
   color: $color-text-primary;
 }
 
+.weekTip {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  background: $color-bg-tag;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-round;
+}
+
 .weekNav {
   display: flex;
   gap: $spacing-sm;
@@ -169,6 +177,15 @@
 .mealItemName {
   font-size: $font-size-xs;
   color: $color-text-secondary;
+}
+
+.replaceHint {
+  margin-left: auto;
+  opacity: 0.4;
+}
+
+.replaceIcon {
+  font-size: 20rpx;
 }
 
 .section {

@@ -35,6 +35,14 @@ function saveToStorage(key: string, data: unknown) {
   }
 }
 
+function getTodayStr(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export interface WeeklyMenuDay {
   breakfast: { name: string; image: string }[];
   lunch: { name: string; image: string }[];
@@ -175,10 +183,27 @@ export interface HealthReport {
   exerciseCount: number;
   medicineCompliance: number;
   summary: string;
+  abnormalGlucoseList?: {
+    date: string;
+    time: string;
+    value: number;
+    type: string;
+    mealType?: string;
+    status: string;
+  }[];
+  highCarbMeals?: {
+    date: string;
+    mealType: string;
+    mealLabel: string;
+    totalCarbs: number;
+    foodCount: number;
+  }[];
+  doctorAdvice?: string[];
 }
 
 interface AppState {
-  mealFoods: Record<string, FoodItem[]>;
+  mealRecords: Record<string, Record<string, FoodItem[]>>;
+  currentDate: string;
   currentMealType: string;
   glucoseRecords: GlucoseRecord[];
   shoppingItems: ShoppingItem[];
@@ -187,18 +212,31 @@ interface AppState {
   surveyAnswers: SurveyAnswer[];
   healthReports: HealthReport[];
 
-  addFoodsToMeal: (mealType: string, foods: FoodItem[]) => void;
+  addFoodsToMeal: (mealType: string, foods: FoodItem[], date?: string) => void;
+  setMealFoods: (mealType: string, foods: FoodItem[], date?: string) => void;
   setCurrentMealType: (mealType: string) => void;
-  setMealFoods: (mealType: string, foods: FoodItem[]) => void;
+  setCurrentDate: (date: string) => void;
+  getMealCarbs: (mealType: string, date?: string) => number;
+  getDateMealSummary: (date: string) => { totalCarbs: number; totalCalories: number; mealCount: number };
+
   addGlucoseRecord: (record: GlucoseRecord) => void;
   toggleShoppingItem: (id: string) => void;
+  replaceWeeklyMenuFood: (dayIndex: number, mealType: string, foodIndex: number, newFood: { name: string; image: string }) => void;
   completeSurvey: (surveyId: string, answers: Record<number, string>) => void;
   addHealthReport: (report: HealthReport) => void;
   hydrate: () => void;
 }
 
+function initMealRecords(): Record<string, Record<string, FoodItem[]>> {
+  const today = getTodayStr();
+  return {
+    [today]: buildDefaultMealFoods(),
+  };
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
-  mealFoods: buildDefaultMealFoods(),
+  mealRecords: initMealRecords(),
+  currentDate: getTodayStr(),
   currentMealType: 'lunch',
   glucoseRecords: [...mockTodayGlucose],
   shoppingItems: [...mockShoppingList],
@@ -207,12 +245,35 @@ export const useAppStore = create<AppState>((set, get) => ({
   surveyAnswers: [],
   healthReports: [],
 
-  addFoodsToMeal: (mealType, foods) => {
+  addFoodsToMeal: (mealType, foods, date) => {
+    const targetDate = date || get().currentDate;
     set((state) => {
-      const existing = state.mealFoods[mealType] || [];
-      const updated = { ...state.mealFoods, [mealType]: [...existing, ...foods] };
-      saveToStorage(STORE_KEY, { ...get(), mealFoods: updated, currentMealType: mealType });
-      return { mealFoods: updated, currentMealType: mealType };
+      const dateRecord = state.mealRecords[targetDate] || {};
+      const existing = dateRecord[mealType] || [];
+      const updatedDateRecord = { ...dateRecord, [mealType]: [...existing, ...foods] };
+      const updatedRecords = { ...state.mealRecords, [targetDate]: updatedDateRecord };
+      saveToStorage(STORE_KEY, {
+        ...get(),
+        mealRecords: updatedRecords,
+        currentMealType: mealType,
+        currentDate: targetDate,
+      });
+      return {
+        mealRecords: updatedRecords,
+        currentMealType: mealType,
+        currentDate: targetDate,
+      };
+    });
+  },
+
+  setMealFoods: (mealType, foods, date) => {
+    const targetDate = date || get().currentDate;
+    set((state) => {
+      const dateRecord = state.mealRecords[targetDate] || {};
+      const updatedDateRecord = { ...dateRecord, [mealType]: foods };
+      const updatedRecords = { ...state.mealRecords, [targetDate]: updatedDateRecord };
+      saveToStorage(STORE_KEY, { ...get(), mealRecords: updatedRecords });
+      return { mealRecords: updatedRecords };
     });
   },
 
@@ -223,12 +284,35 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  setMealFoods: (mealType, foods) => {
+  setCurrentDate: (date) => {
     set((state) => {
-      const updated = { ...state.mealFoods, [mealType]: foods };
-      saveToStorage(STORE_KEY, { ...get(), mealFoods: updated });
-      return { mealFoods: updated };
+      saveToStorage(STORE_KEY, { ...get(), currentDate: date });
+      return { currentDate: date };
     });
+  },
+
+  getMealCarbs: (mealType, date) => {
+    const targetDate = date || get().currentDate;
+    const dateRecord = get().mealRecords[targetDate] || {};
+    const foods = dateRecord[mealType] || [];
+    return foods.reduce((sum, f) => sum + f.carbs, 0);
+  },
+
+  getDateMealSummary: (date) => {
+    const dateRecord = get().mealRecords[date] || {};
+    let totalCarbs = 0;
+    let totalCalories = 0;
+    let mealCount = 0;
+    Object.values(dateRecord).forEach((foods) => {
+      if (foods && foods.length > 0) {
+        mealCount++;
+        foods.forEach((f) => {
+          totalCarbs += f.carbs;
+          totalCalories += f.calories;
+        });
+      }
+    });
+    return { totalCarbs: Math.round(totalCarbs * 10) / 10, totalCalories: Math.round(totalCalories), mealCount };
   },
 
   addGlucoseRecord: (record) => {
@@ -246,6 +330,58 @@ export const useAppStore = create<AppState>((set, get) => ({
       );
       saveToStorage(STORE_KEY, { ...get(), shoppingItems: updated });
       return { shoppingItems: updated };
+    });
+  },
+
+  replaceWeeklyMenuFood: (dayIndex, mealType, foodIndex, newFood) => {
+    set((state) => {
+      const newWeeklyMenu = [...state.weeklyMenu];
+      const dayMenu = { ...newWeeklyMenu[dayIndex] };
+      const mealFoods = [...(dayMenu[mealType as keyof WeeklyMenuDay] || [])];
+      if (foodIndex >= 0 && foodIndex < mealFoods.length) {
+        mealFoods[foodIndex] = newFood;
+      } else {
+        mealFoods.push(newFood);
+      }
+      dayMenu[mealType as keyof WeeklyMenuDay] = mealFoods;
+      newWeeklyMenu[dayIndex] = dayMenu;
+
+      const foodNames = new Set<string>();
+      newWeeklyMenu.forEach((day) => {
+        ['breakfast', 'lunch', 'dinner', 'snack'].forEach((m) => {
+          (day[m as keyof WeeklyMenuDay] || []).forEach((f) => foodNames.add(f.name));
+        });
+      });
+
+      const updatedShopping = state.shoppingItems.map((item) => {
+        if (foodNames.has(item.name)) return item;
+        return item;
+      });
+
+      const existingNames = new Set(state.shoppingItems.map((i) => i.name));
+      const newItems: ShoppingItem[] = [];
+      foodNames.forEach((name) => {
+        if (!existingNames.has(name)) {
+          const found = mockFoodDatabase.find((f) => f.name === name);
+          const category = found ? (found.carbs > 20 ? '主食' : found.protein > 10 ? '肉类' : found.carbs > 5 ? '蔬菜' : '蛋奶') : '其他';
+          newItems.push({
+            id: `shop_${Date.now()}_${name}`,
+            name,
+            quantity: '适量',
+            checked: false,
+            category,
+          });
+        }
+      });
+
+      const finalShopping = [...updatedShopping, ...newItems];
+
+      saveToStorage(STORE_KEY, {
+        ...get(),
+        weeklyMenu: newWeeklyMenu,
+        shoppingItems: finalShopping,
+      });
+      return { weeklyMenu: newWeeklyMenu, shoppingItems: finalShopping };
     });
   },
 
@@ -282,7 +418,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       const saved = loadFromStorage<AppState>(STORE_KEY, null as any);
       if (saved) {
         set({
-          mealFoods: saved.mealFoods || buildDefaultMealFoods(),
+          mealRecords: saved.mealRecords || initMealRecords(),
+          currentDate: saved.currentDate || getTodayStr(),
           currentMealType: saved.currentMealType || 'lunch',
           glucoseRecords: saved.glucoseRecords || [...mockTodayGlucose],
           shoppingItems: saved.shoppingItems || [...mockShoppingList],

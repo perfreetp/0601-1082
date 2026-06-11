@@ -96,6 +96,11 @@ const CameraPage: React.FC = () => {
   const handleSave = () => {
     const now = new Date();
     const hour = now.getHours();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${y}-${m}-${d}`;
+
     let mealType = 'lunch';
     if (hour < 10) mealType = 'breakfast';
     else if (hour < 14) mealType = 'lunch';
@@ -107,10 +112,10 @@ const CameraPage: React.FC = () => {
       id: `${Date.now()}_${i}`,
     }));
 
-    addFoodsToMeal(mealType, foodsWithNewIds);
+    addFoodsToMeal(mealType, foodsWithNewIds, todayStr);
     const mealName = mealType === 'breakfast' ? '早餐' : mealType === 'lunch' ? '午餐' : mealType === 'dinner' ? '晚餐' : '加餐';
     Taro.showToast({ title: `已保存到${mealName}`, icon: 'success' });
-    console.log('[Camera] 保存到餐盘', { mealType, foods: foodsWithNewIds, totalCarbs, totalCalories });
+    console.log('[Camera] 保存到餐盘', { mealType, date: todayStr, foods: foodsWithNewIds, totalCarbs, totalCalories });
     setTimeout(() => {
       Taro.switchTab({ url: '/pages/plate/index' });
     }, 600);
