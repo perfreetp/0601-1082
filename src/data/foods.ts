@@ -213,8 +213,8 @@ export const mockShoppingList: ShoppingItem[] = [
 export const cookingMethods = ['蒸', '煮', '炒', '煎', '烤', '炖', '凉拌', '生食'];
 
 export const mealTypes = [
-  { key: 'breakfast', label: '早餐', icon: '🌅' },
-  { key: 'lunch', label: '午餐', icon: '☀️' },
-  { key: 'dinner', label: '晚餐', icon: '🌙' },
-  { key: 'snack', label: '加餐', icon: '🍎' },
+  { key: 'breakfast', label: '早餐', icon: '🌅', time: '07:00 - 08:30' },
+  { key: 'lunch', label: '午餐', icon: '☀️', time: '12:00 - 13:30' },
+  { key: 'dinner', label: '晚餐', icon: '🌙', time: '18:00 - 19:30' },
+  { key: 'snack', label: '加餐', icon: '🍎', time: '10:00 / 15:00' },
 ];

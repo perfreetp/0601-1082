@@ -169,6 +169,59 @@ const PlatePage: React.FC = () => {
         </View>
       </View>
 
+      <View className={styles.timelineCard}>
+        <Text className={styles.timelineTitle}>
+          <Text>⏱️</Text>
+          当天饮食时间线
+        </Text>
+        <View className={styles.timeline}>
+          {mealTypes.map((meal, idx) => {
+            const foods = dateRecord[meal.key] || [];
+            const carbs = getMealCarbs(meal.key, currentDate);
+            const calories = foods.reduce((s, f) => s + f.calories, 0);
+            const isActive = activeMeal === meal.key;
+            return (
+              <View
+                key={meal.key}
+                className={classnames(styles.timelineItem, foods.length === 0 && styles.empty)}
+                onClick={() => setCurrentMealType(meal.key)}
+              >
+                <View className={styles.timelineLeft}>
+                  <View className={classnames(styles.timelineDot, isActive && styles.active)}>
+                    <Text>{meal.icon}</Text>
+                  </View>
+                  {idx < mealTypes.length - 1 && <View className={styles.timelineLine} />}
+                </View>
+                <View className={classnames(styles.timelineContent, isActive && styles.active)}>
+                  <View className={styles.timelineHeader}>
+                    <Text className={styles.timelineMealName}>{meal.label}</Text>
+                    <Text className={styles.timelineMealTime}>{meal.time}</Text>
+                  </View>
+                  {foods.length > 0 ? (
+                    <View>
+                      <Text className={styles.timelineFoodList}>
+                        {foods.slice(0, 4).map((f) => f.name).join('、')}
+                        {foods.length > 4 && ` 等${foods.length}种`}
+                      </Text>
+                      <View className={styles.timelineStats}>
+                        <Text className={styles.timelineStat}>
+                          🍚 {Math.round(carbs)}g碳水
+                        </Text>
+                        <Text className={styles.timelineStat}>
+                          🔥 {Math.round(calories)}千卡
+                        </Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <Text className={styles.timelineEmpty}>未记录，点击添加</Text>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+
       <ScrollView scrollX className={styles.mealTabs}>
         {mealTypes.map((meal) => {
           const carbs = getMealCarbs(meal.key, currentDate);

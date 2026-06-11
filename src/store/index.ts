@@ -346,35 +346,45 @@ export const useAppStore = create<AppState>((set, get) => ({
       dayMenu[mealType as keyof WeeklyMenuDay] = mealFoods;
       newWeeklyMenu[dayIndex] = dayMenu;
 
-      const foodNames = new Set<string>();
+      const newMenuFoodNames = new Set<string>();
       newWeeklyMenu.forEach((day) => {
         ['breakfast', 'lunch', 'dinner', 'snack'].forEach((m) => {
-          (day[m as keyof WeeklyMenuDay] || []).forEach((f) => foodNames.add(f.name));
+          (day[m as keyof WeeklyMenuDay] || []).forEach((f) => newMenuFoodNames.add(f.name));
         });
       });
 
-      const updatedShopping = state.shoppingItems.map((item) => {
-        if (foodNames.has(item.name)) return item;
-        return item;
-      });
+      const keptItems = state.shoppingItems.filter((item) =>
+        newMenuFoodNames.has(item.name)
+      );
 
-      const existingNames = new Set(state.shoppingItems.map((i) => i.name));
+      const keptNames = new Set(keptItems.map((i) => i.name));
       const newItems: ShoppingItem[] = [];
-      foodNames.forEach((name) => {
-        if (!existingNames.has(name)) {
+      newMenuFoodNames.forEach((name) => {
+        if (!keptNames.has(name)) {
           const found = mockFoodDatabase.find((f) => f.name === name);
-          const category = found ? (found.carbs > 20 ? '主食' : found.protein > 10 ? '肉类' : found.carbs > 5 ? '蔬菜' : '蛋奶') : '其他';
+          const category = found
+            ? found.carbs > 20
+              ? '主食'
+              : found.protein > 10
+              ? '肉类'
+              : found.carbs > 5
+              ? '蔬菜'
+              : '蛋奶'
+            : '其他';
+          const quantity = found
+            ? `${found.portion}${found.unit}`
+            : '适量';
           newItems.push({
             id: `shop_${Date.now()}_${name}`,
             name,
-            quantity: '适量',
+            quantity,
             checked: false,
             category,
           });
         }
       });
 
-      const finalShopping = [...updatedShopping, ...newItems];
+      const finalShopping = [...keptItems, ...newItems];
 
       saveToStorage(STORE_KEY, {
         ...get(),

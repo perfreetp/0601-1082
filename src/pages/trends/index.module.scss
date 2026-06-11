@@ -275,6 +275,17 @@
 .abnormalText {
   font-size: $font-size-sm;
   color: $color-text-primary;
+  display: block;
+}
+
+.abnormalCarbs {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  background: $color-bg-tag;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+  margin-top: 6rpx;
+  display: inline-block;
 }
 
 .abnormalValue {
@@ -282,5 +293,13 @@
   font-weight: $font-weight-semibold;
 
   &.high { color: $color-warning; }
-  &.low { color: $color-error; }
+  &.danger { color: $color-error; }
+  &.low { color: $color-info; }
+}
+
+.emptyAbnormal {
+  text-align: center;
+  padding: $spacing-lg 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
 }
