@@ -1,0 +1,311 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: 0 $page-padding;
+  padding-bottom: 60rpx;
+}
+
+.evaluationCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  color: $color-text-white;
+  box-shadow: 0 8rpx 24rpx rgba(16, 185, 129, 0.2);
+}
+
+.evalHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.evalIcon {
+  font-size: 48rpx;
+}
+
+.evalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.evalScore {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.scoreValue {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: $font-size-sm;
+  opacity: 0.8;
+}
+
+.evalDesc {
+  font-size: $font-size-sm;
+  line-height: 1.7;
+  opacity: 0.95;
+}
+
+.evalTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.evalTag {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.sectionIcon {
+  font-size: 36rpx;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.suggestionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.suggestionItem {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.suggestionIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: $color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  flex-shrink: 0;
+}
+
+.suggestionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.suggestionDesc {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.substituteCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.foodInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.foodImg {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-md;
+  background: #fff;
+}
+
+.foodDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.foodName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 2rpx;
+}
+
+.foodStats {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.arrowIcon {
+  font-size: 32rpx;
+  color: $color-primary;
+}
+
+.tipBox {
+  padding: $spacing-md;
+  background: rgba(99, 102, 241, 0.08);
+  border-radius: $radius-md;
+  border-left: 6rpx solid $color-secondary;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.tipTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.tipContent {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.7;
+}
+
+.orderSteps {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.orderStep {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.stepNumber {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 2rpx;
+}
+
+.stepDesc {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.snackReminder {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.snackTime {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.timeValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+}
+
+.timeLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.snackInfo {
+  flex: 1;
+}
+
+.snackName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 2rpx;
+}
+
+.snackDesc {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}

@@ -1,0 +1,38 @@
+@use '@/styles/variables.scss' as *;
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  transition: all $transition-base;
+
+  &.default {
+    background: $color-bg-tag;
+    color: $color-primary;
+  }
+
+  &.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: $color-success;
+  }
+
+  &.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: $color-warning;
+  }
+
+  &.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: $color-error;
+  }
+
+  &.info {
+    background: rgba(99, 102, 241, 0.1);
+    color: $color-info;
+  }
+}

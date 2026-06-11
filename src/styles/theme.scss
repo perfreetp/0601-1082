@@ -1,0 +1,43 @@
+// ============================================
+// 主题配色变量 - 控糖 AI 应用
+// ============================================
+
+// 品牌主题色：翡翠绿 - 健康、自然、活力
+$color-primary: #10B981;
+$color-primary-light: #34D399;
+$color-primary-dark: #059669;
+
+// 辅助色：靛蓝 - 科技、专业（AI 相关）
+$color-secondary: #6366F1;
+$color-secondary-light: #818CF8;
+$color-secondary-dark: #4F46E5;
+
+// 功能色
+$color-success: #10B981;
+$color-warning: #F59E0B;
+$color-error: #EF4444;
+$color-info: #6366F1;
+
+// 血糖专用色
+$color-glucose-low: #3B82F6;
+$color-glucose-normal: #10B981;
+$color-glucose-high: #F59E0B;
+$color-glucose-danger: #EF4444;
+
+// 背景色
+$color-bg-page: #F0FDF4;
+$color-bg-page-gradient: linear-gradient(180deg, #ECFDF5 0%, #F0FDF4 100%);
+$color-bg-card: #ffffff;
+$color-bg-hover: #F0FDF4;
+$color-bg-tag: rgba(16, 185, 129, 0.1);
+
+// 文本色
+$color-text-primary: #1F2937;
+$color-text-secondary: #6B7280;
+$color-text-tertiary: #9CA3AF;
+$color-text-disabled: #D1D5DB;
+$color-text-white: #ffffff;
+
+// 边框色
+$color-border: #E5E7EB;
+$color-divider: #F3F4F6;

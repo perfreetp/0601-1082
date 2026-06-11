@@ -1,0 +1,364 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: 0 $page-padding;
+  padding-bottom: 180rpx;
+}
+
+.summaryCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  box-shadow: 0 8rpx 24rpx rgba(16, 185, 129, 0.2);
+  color: $color-text-white;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.summaryTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.summaryPeriod {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+}
+
+.summaryMain {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.patientAvatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: $radius-round;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.patientInfo {
+  flex: 1;
+}
+
+.patientName {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.patientStatus {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.statusDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: #34D399;
+  box-shadow: 0 0 8rpx rgba(52, 211, 153, 0.8);
+}
+
+.summaryStats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.statLabel {
+  font-size: 20rpx;
+  opacity: 0.8;
+  margin-top: $spacing-xs;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.seeAll {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.memberList {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  padding-bottom: $spacing-xs;
+}
+
+.memberItem {
+  flex-shrink: 0;
+  text-align: center;
+  width: 110rpx;
+}
+
+.memberAvatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-round;
+  margin: 0 auto $spacing-sm;
+  position: relative;
+  background: $color-bg-page;
+}
+
+.memberStatusDot {
+  position: absolute;
+  right: 0;
+  bottom: 4rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-bg-card;
+  background: $color-success;
+}
+
+.memberName {
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 2rpx;
+  @include text-ellipsis;
+}
+
+.memberRelation {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+}
+
+.addMember {
+  flex-shrink: 0;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-round;
+  border: 2rpx dashed $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  color: $color-text-tertiary;
+  margin-top: 0;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.messageItem {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+}
+
+.messageAvatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  flex-shrink: 0;
+  background: $color-bg-page;
+}
+
+.messageContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.messageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.messageSender {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.messageTime {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.messageText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.6;
+
+  &.emergency {
+    color: $color-error;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.emergencyBadge {
+  display: inline-block;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+  background: rgba(239, 68, 68, 0.1);
+  color: $color-error;
+  font-size: 20rpx;
+  font-weight: $font-weight-medium;
+  margin-right: $spacing-xs;
+}
+
+.surveyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.surveyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.surveyInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.surveyTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis;
+}
+
+.surveyMeta {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  display: flex;
+  gap: $spacing-md;
+}
+
+.surveyStatus {
+  flex-shrink: 0;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: 20rpx;
+  font-weight: $font-weight-medium;
+
+  &.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: $color-warning;
+  }
+
+  &.completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: $color-success;
+  }
+
+  &.expired {
+    background: rgba(156, 163, 175, 0.1);
+    color: $color-text-tertiary;
+  }
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.actionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+
+  &.emergency {
+    background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+
+    .actionIcon, .actionTitle, .actionDesc {
+      color: $color-text-white;
+    }
+  }
+}
+
+.actionIcon {
+  font-size: 48rpx;
+}
+
+.actionTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.actionDesc {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
